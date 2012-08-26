@@ -7,3 +7,8 @@
 *.cmx
 *.cmxs
 *.cmxa
+GPATH
+GTAGS
+config/Makefile
+config/coq_config.ml
+dev/ocamldebug-coq
