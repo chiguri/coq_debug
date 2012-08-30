@@ -1,0 +1,3 @@
+set arguments -boot
+directory /usr/lib/ocaml/camlp4 toplevel config lib kernel library pretyping parsing interp proofs tactics toplevel dev config  plugins/cc plugins/dp plugins/extraction plugins/field plugins/firstorder plugins/fourier plugins/funind plugins/groebner plugins/interface plugins/micromega plugins/omega plugins/quote plugins/quote plugins/ring plugins/romega plugins/rtauto plugins/setoid_ring plugins/subtac plugins/syntax plugins/xml ide
+break @ Vernacentries 1586

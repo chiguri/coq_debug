@@ -7,8 +7,13 @@
 *.cmx
 *.cmxs
 *.cmxa
+*.d
+*.vo
+*.glob
 GPATH
 GTAGS
 config/Makefile
 config/coq_config.ml
 dev/ocamldebug-coq
+bin/*
+revision
