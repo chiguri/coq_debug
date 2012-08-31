@@ -6,12 +6,26 @@
 (*         *       GNU Lesser General Public License Version 2.1        *)
 (************************************************************************)
 
+open Util
+
 type form=
     Atom of int
   | Arrow of form * form
   | Bot
   | Conjunct of form * form
   | Disjunct of form * form
+
+module Fmap : Map.S with type key = form
+
+type sequent =
+    {rev_hyps: form Intmap.t;
+     norev_hyps: form Intmap.t;
+     size:int;
+     left:int Fmap.t;
+     right:(int*form) list Fmap.t;
+     cnx:(int*int*form*form) list;
+     abs:int option;
+     gl:form}
 
 type proof =
     Ax of int
@@ -28,7 +42,41 @@ type proof =
   | D_Or of int*proof
   | Pop of int*proof
 
-type state
+
+type rule =
+    SAx of int
+  | SI_Arrow
+  | SE_Arrow of int*int
+  | SD_Arrow of int
+  | SE_False of int
+  | SI_And
+  | SE_And of int
+  | SD_And of int
+  | SI_Or_l
+  | SI_Or_r
+  | SE_Or of int
+  | SD_Or of int
+
+
+type 'a with_deps =
+    {dep_it:'a;
+     dep_goal:bool;
+     dep_hyps:Intset.t}
+
+type slice=
+    {proofs_done:proof list;
+     proofs_todo:sequent with_deps list;
+     step:rule;
+     needs_goal:bool;
+     needs_hyps:Intset.t;
+     changes_goal:bool;
+     creates_hyps:Intset.t}
+
+
+type state =
+    Complete of proof
+  | Incomplete of sequent * slice list
+
 
 val project: state -> proof
 

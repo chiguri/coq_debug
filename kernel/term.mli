@@ -50,9 +50,39 @@ type case_info =
     ci_pp_info    : case_printing (** not interpreted by the kernel *)
   }
 
-(** {6 The type of constructions } *)
+(** This defines the strategy to use for verifiying a Cast *)
+type cast_kind = VMcast | DEFAULTcast | REVERTcast
 
-type constr
+
+
+type 'constr pexistential = existential_key * 'constr array
+type ('constr, 'types) prec_declaration =
+    name array * 'types array * 'constr array
+type ('constr, 'types) pfixpoint =
+    (int array * int) * ('constr, 'types) prec_declaration
+type ('constr, 'types) pcofixpoint =
+    int * ('constr, 'types) prec_declaration
+
+type ('constr, 'types) kind_of_term =
+  | Rel       of int
+  | Var       of identifier
+  | Meta      of metavariable
+  | Evar      of 'constr pexistential
+  | Sort      of sorts
+  | Cast      of 'constr * cast_kind * 'types
+  | Prod      of name * 'types * 'types
+  | Lambda    of name * 'types * 'constr
+  | LetIn     of name * 'constr * 'types * 'constr
+  | App       of 'constr * 'constr array
+  | Const     of constant
+  | Ind       of inductive
+  | Construct of constructor
+  | Case      of case_info * 'constr * 'constr * 'constr array
+  | Fix       of ('constr, 'types) pfixpoint
+  | CoFix     of ('constr, 'types) pcofixpoint
+
+
+type constr = (constr,constr) kind_of_term
 
 (** [eq_constr a b] is true if [a] equals [b] modulo alpha, casts,
    and application grouping *)
@@ -91,9 +121,6 @@ val mkProp : types
 val mkSet  : types
 val mkType : Univ.universe -> types
 
-
-(** This defines the strategy to use for verifiying a Cast *)
-type cast_kind = VMcast | DEFAULTcast | REVERTcast
 
 (** Constructs the term [t1::t2], i.e. the term t{_ 1} casted with the
    type t{_ 2} (that means t2 is declared as the type of t1). *)
@@ -184,31 +211,6 @@ val mkCoFix : cofixpoint -> constr
 
 (** [constr array] is an instance matching definitional [named_context] in
    the same order (i.e. last argument first) *)
-type 'constr pexistential = existential_key * 'constr array
-type ('constr, 'types) prec_declaration =
-    name array * 'types array * 'constr array
-type ('constr, 'types) pfixpoint =
-    (int array * int) * ('constr, 'types) prec_declaration
-type ('constr, 'types) pcofixpoint =
-    int * ('constr, 'types) prec_declaration
-
-type ('constr, 'types) kind_of_term =
-  | Rel       of int
-  | Var       of identifier
-  | Meta      of metavariable
-  | Evar      of 'constr pexistential
-  | Sort      of sorts
-  | Cast      of 'constr * cast_kind * 'types
-  | Prod      of name * 'types * 'types
-  | Lambda    of name * 'types * 'constr
-  | LetIn     of name * 'constr * 'types * 'constr
-  | App       of 'constr * 'constr array
-  | Const     of constant
-  | Ind       of inductive
-  | Construct of constructor
-  | Case      of case_info * 'constr * 'constr * 'constr array
-  | Fix       of ('constr, 'types) pfixpoint
-  | CoFix     of ('constr, 'types) pcofixpoint
 
 (** User view of [constr]. For [App], it is ensured there is at
    least one argument and the function is not itself an applicative

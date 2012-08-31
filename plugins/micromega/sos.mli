@@ -6,9 +6,17 @@
 (*         *       GNU Lesser General Public License Version 2.1        *)
 (************************************************************************)
 
+open Num
 open Sos_types
+open Sos_lib
 
-type poly
+type vector = int*(int,num)func;;
+
+type matrix = (int*int)*(int*int,num)func;;
+
+type monomial = (vname,int)func;;
+
+type poly = (monomial,num)func;;
 
 val poly_isconst : poly -> bool
 

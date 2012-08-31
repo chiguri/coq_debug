@@ -26,7 +26,12 @@ val check_connection : string list -> unit
 
 (** * The structure describing a coqtop sub-process *)
 
-type coqtop
+type coqtop = {
+  pid : int; (* Unix process id *)
+  cout : in_channel ;
+  cin : out_channel ;
+  sup_args : string list;
+}
 
 (** * Count of all active coqtops *)
 

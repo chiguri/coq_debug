@@ -80,7 +80,14 @@ val unfold_red : evaluable_global_reference -> reds
 (***********************************************************************)
 type table_key = id_key
 
-type 'a infos
+type 'a infos = {
+  i_flags : reds;
+  i_repr : 'a infos -> constr -> 'a;
+  i_env : env;
+  i_sigma : existential -> constr option;
+  i_rels : int * (int * constr) list;
+  i_vars : (identifier * constr) list;
+  i_tab : (table_key, 'a) Hashtbl.t }
 val ref_value_cache: 'a infos -> table_key -> 'a option
 val info_flags: 'a infos -> reds
 val create: ('a infos -> constr -> 'a) -> reds -> env ->
@@ -90,14 +97,19 @@ val evar_value : 'a infos -> existential -> constr option
 (***********************************************************************
   s Lazy reduction. *)
 
-(** [fconstr] is the type of frozen constr *)
+(* this causes "conflict of constructor names" of Red *)
+(* type red_state = Norm | Cstr | Whnf | Red *)
+type red_state
 
-type fconstr
+(** [fconstr] is the type of frozen constr *)
+type fconstr = {
+  mutable norm: red_state;
+  mutable term: fterm }
 
 (** [fconstr] can be accessed by using the function [fterm_of] and by
    matching on type [fterm] *)
 
-type fterm =
+and fterm =
   | FRel of int
   | FAtom of constr (** Metas and Sorts *)
   | FCast of fconstr * cast_kind * fconstr
@@ -157,7 +169,7 @@ val destFLambda :
   (fconstr subs -> constr -> fconstr) -> fconstr -> name * fconstr * fconstr
 
 (** Global and local constant cache *)
-type clos_infos
+type clos_infos = fconstr infos
 val create_clos_infos :
   ?evars:(existential->constr option) -> reds -> env -> clos_infos
 

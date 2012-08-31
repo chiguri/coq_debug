@@ -20,7 +20,7 @@ open Declarations
 
 type mutual
 type individual
-type 'a scheme_kind
+type 'a scheme_kind = string
 
 type mutual_scheme_object_function = mutual_inductive -> constr array
 type individual_scheme_object_function = inductive -> constr

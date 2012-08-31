@@ -284,9 +284,9 @@ The old configurations files are readable by this module.
 
 
 (**/**)
-type 'a option_class
-type 'a option_record
-type options_file
+type 'a option_class = 'a wrappers
+type 'a option_record = 'a cp
+type options_file = {mutable filename:string; group:group}
 
 val create_options_file : string -> options_file
 val set_options_file : options_file -> string -> unit

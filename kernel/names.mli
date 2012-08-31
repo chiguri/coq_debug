@@ -6,9 +6,11 @@
 (*         *       GNU Lesser General Public License Version 2.1        *)
 (************************************************************************)
 
-(** {6 Identifiers } *)
+open Pp
+open Util
 
-type identifier
+(** {6 Identifiers } *)
+type identifier = string
 
 (** Parsing and printing of identifiers *)
 val string_of_id : identifier -> string
@@ -35,7 +37,7 @@ type variable = identifier
 type module_ident = identifier
 module ModIdmap : Map.S with type key = module_ident
 
-type dir_path
+type dir_path = module_ident list
 
 (** Inner modules idents on top of list (to improve sharing).
    For instance: A.B.C is ["C";"B";"A"] *)
@@ -49,7 +51,7 @@ val string_of_dirpath : dir_path -> string
 
 (** {6 Names of structure elements } *)
 
-type label
+type label = identifier
 
 val mk_label : string -> label
 val string_of_label : label -> string
@@ -63,7 +65,9 @@ module Labmap : Map.S with type key = label
 
 (** {6 Unique names for bound modules } *)
 
-type mod_bound_id
+type uniq_ident = int * identifier * dir_path
+type mod_bound_id = uniq_ident
+
 
 (** The first argument is a file name - to prevent conflict between
    different files *)
@@ -96,7 +100,7 @@ val initial_path : module_path (** [= MPfile initial_dir] *)
 
 (** {6 The absolute names of objects seen by kernel } *)
 
-type kernel_name
+type kernel_name = module_path * dir_path * label
 
 (** Constructor and destructor *)
 val make_kn : module_path -> dir_path -> label -> kernel_name
@@ -117,8 +121,9 @@ module KNmap  : Map.S with type key = kernel_name
 
 (** {6 Specific paths for declarations } *)
 
-type constant
-type mutual_inductive
+type constant = kernel_name*kernel_name
+
+type mutual_inductive = kernel_name*kernel_name
 
 (** Beware: first inductive has index 0 *)
 type inductive = mutual_inductive * int

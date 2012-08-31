@@ -38,7 +38,7 @@ type zipper =
 
 type stack = zipper list
 
-type to_up
+type to_up = values
 
 type whd =
   | Vsort of sorts

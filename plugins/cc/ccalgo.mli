@@ -38,16 +38,27 @@ type pa_constructor =
       arity : int;
       args  : int list}
 
+
+type inductive_status =
+    Unknown
+  | Partial of pa_constructor
+  | Partial_applied
+  | Total of (int * pa_constructor)
+
+
+type pa_fun=
+    {fsym:int;
+     fnargs:int}
+
+type pa_mark=
+    Fmark of pa_fun
+  | Cmark of pa_constructor
+
+
+
 module PacMap : Map.S with type key = pa_constructor
+module PafMap : Map.S with type key = pa_fun
 
-type forest
-
-type state
-
-type rule=
-    Congruence
-  | Axiom of constr * bool
-  | Injection of int * pa_constructor * int * pa_constructor * int
 
 type from=
     Goal
@@ -55,19 +66,91 @@ type from=
   | HeqG of constr
   | HeqnH of constr*constr
 
+type rule=
+    Congruence
+  | Axiom of constr * bool
+  | Injection of int * pa_constructor * int * pa_constructor * int
+
 type 'a eq = {lhs:int;rhs:int;rule:'a}
+
 
 type equality = rule eq
 
 type disequality = from eq
 
+type representative=
+    {mutable weight:int;
+     mutable lfathers:Intset.t;
+     mutable fathers:Intset.t;
+     mutable inductive_status: inductive_status;
+     class_type : Term.types;
+     mutable functions: Intset.t PafMap.t;
+     mutable constructors: int PacMap.t} (*pac -> term = app(constr,t) *)
+
+type cl = Rep of representative | Eqto of int*equality
+
+type vertex = Leaf| Node of (int*int)
+
+type node =
+    {mutable clas:cl;
+     mutable cpath: int;
+     vertex:vertex;
+     term:term}
+
+
+
+module Constrhash : Hashtbl.S with type key = constr
+module Typehash : Hashtbl.S with type key = constr
+module Termhash : Hashtbl.S with type key = term
+module Identhash : Hashtbl.S with type key = identifier
+
+module ST : sig
+  type t = {toterm:(int*int,int) Hashtbl.t;
+            tosign:(int,int*int) Hashtbl.t} 
+end
+
+
+
+type forest=
+    {mutable max_size:int;
+     mutable size:int;
+     mutable map: node array;
+     axioms: (term*term) Constrhash.t;
+     mutable epsilons: pa_constructor list;
+     syms: int Termhash.t}
+
+
+
+type quant_eq=
+    {qe_hyp_id: identifier;
+     qe_pol: bool;
+     qe_nvars:int;
+     qe_lhs: ccpattern;
+     qe_lhs_valid:patt_kind;
+     qe_rhs: ccpattern;
+     qe_rhs_valid:patt_kind}
+
+
+
+type state =
+    {uf: forest;
+     sigtable:ST.t;
+     mutable terms: Intset.t;
+     combine: equality Queue.t;
+     marks: (int * pa_mark) Queue.t;
+     mutable diseq: disequality list;
+     mutable quant: quant_eq list;
+     mutable pa_classes: Intset.t;
+     q_history: (int array) Identhash.t;
+     mutable rew_depth:int;
+     mutable changed:bool;
+     by_type: Intset.t Typehash.t;
+     mutable gls:Proof_type.goal Tacmach.sigma}
+
 type explanation =
     Discrimination of (int*pa_constructor*int*pa_constructor)
   | Contradiction of disequality
   | Incomplete
-
-module Constrhash : Hashtbl.S with type key = constr
-module Termhash : Hashtbl.S with type key = term
 
 val constr_of_term : term -> constr
 
@@ -105,23 +188,12 @@ val subterms : forest -> int -> int * int
 val join_path : forest -> int -> int ->
   ((int * int) * equality) list * ((int * int) * equality) list
 
-type quant_eq=
-    {qe_hyp_id: identifier;
-     qe_pol: bool;
-     qe_nvars:int;
-     qe_lhs: ccpattern;
-     qe_lhs_valid:patt_kind;
-     qe_rhs: ccpattern;
-     qe_rhs_valid:patt_kind}
 
 
-type pa_fun=
-    {fsym:int;
-     fnargs:int}
-
-type matching_problem
-
-module PafMap: Map.S with type key = pa_fun
+type matching_problem =
+{mp_subst : int array;
+ mp_inst : quant_eq;
+ mp_stack : (ccpattern*int) list }
 
 val make_fun_table : state -> Intset.t PafMap.t
 

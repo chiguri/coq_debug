@@ -94,7 +94,7 @@ val default_term_pr : term_pr
     Which has the same type. We can turn a modular printer into a printer by
     taking its fixpoint. *)
 
-type precedence
+type precedence =  Ppextend.precedence * Ppextend.parenRelation
 val lsimpleconstr : precedence
 val ltop : precedence
 val modular_constr_pr :

@@ -1,5 +1,6 @@
 open Names
 open Cbytecodes
+open Mod_subst
 
 type reloc_info =
   | Reloc_annot of annot_switch
@@ -11,7 +12,7 @@ type patch = reloc_info * int
 (* A virer *)
 val subst_patch : Mod_subst.substitution -> patch -> patch
 
-type emitcodes
+type emitcodes = string
 
 val copy : emitcodes -> emitcodes
 
@@ -29,7 +30,7 @@ type body_code =
   | BCconstant
 
 
-type to_patch_substituted
+type to_patch_substituted = body_code substituted
 
 val from_val : body_code -> to_patch_substituted
 

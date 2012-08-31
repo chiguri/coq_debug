@@ -13,9 +13,15 @@ open Term
 
 (** {6 Delta resolver} *)
 
+
+type delta_hint =
+  | Inline of int * constr option
+  | Equiv of kernel_name
+
+
 (** A delta_resolver maps name (constant, inductive, module_path)
    to canonical name  *)
-type delta_resolver
+type delta_resolver = module_path MPmap.t * delta_hint KNmap.t
 
 val empty_delta_resolver : delta_resolver
 
@@ -52,8 +58,13 @@ val mind_in_delta : mutual_inductive -> delta_resolver -> bool
 
 
 (** {6 Substitution} *)
+module MBImap : Map.S with type key = mod_bound_id
 
-type substitution
+module Umap : sig
+  type 'a t = 'a MPmap.t * 'a MBImap.t
+end
+
+type substitution = (module_path * delta_resolver) Umap.t
 
 val empty_subst : substitution
 
@@ -89,7 +100,11 @@ val subst_dom_codom_delta_resolver :
   substitution -> delta_resolver -> delta_resolver
 
 
-type 'a substituted
+type 'a lazy_subst =
+  | LSval of 'a
+  | LSlazy of substitution list * 'a
+
+type 'a substituted = 'a lazy_subst ref
 val from_val : 'a -> 'a substituted
 val force : (substitution -> 'a -> 'a) -> 'a substituted -> 'a
 val subst_substituted : substitution -> 'a substituted -> 'a substituted

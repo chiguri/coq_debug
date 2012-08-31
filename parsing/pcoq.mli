@@ -99,8 +99,12 @@ module Gram : GrammarSig
 val gram_token_of_token : Tok.t -> Gram.symbol
 val gram_token_of_string : string -> Gram.symbol
 
+module Gramobj : sig
+  type grammar_object
+end
+
 (** The superclass of all grammar entries *)
-type grammar_object
+type grammar_object = Gramobj.grammar_object
 
 (** Add one extension at some camlp4 position of some camlp4 entry *)
 val grammar_extend :
@@ -113,12 +117,12 @@ val remove_grammars : int -> unit
 
 
 
-
-(** The type of typed grammar objects *)
-type typed_entry
+module G : GrammarSig
 
 (** The possible types for extensible grammars *)
 type entry_type = argument_type
+(** The type of typed grammar objects *)
+type typed_entry = argument_type * grammar_object G.entry
 
 val type_of_typed_entry : typed_entry -> entry_type
 val object_of_typed_entry : typed_entry -> grammar_object Gram.entry
@@ -136,7 +140,7 @@ val map_entry : ('a -> 'b) -> 'a Gram.entry -> 'b Gram.entry
 
 (** Table of Coq statically defined grammar entries *)
 
-type gram_universe
+type gram_universe = string * (string, typed_entry) Hashtbl.t
 
 (** There are four predefined universes: "prim", "constr", "tactic", "vernac" *)
 

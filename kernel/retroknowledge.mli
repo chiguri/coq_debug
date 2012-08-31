@@ -9,13 +9,8 @@
 open Names
 open Term
 
-type retroknowledge
-
-(** aliased type for clarity purpose*)
 type entry =  (constr, types) kind_of_term
 
-(** the following types correspond to the different "things"
-   the kernel can learn about.*)
 type nat_field =
   | NatType
   | NatPlus
@@ -54,11 +49,37 @@ type int31_field =
   | Int31Tail0
 
 type field =
-
-(**  | KEq
-  | KNat of nat_field
-  | KN of n_field *)
   | KInt31 of string*int31_field
+
+
+type flags = {fastcomputation : bool}
+
+module Proactive : Map.S with type key = field
+
+type proactive = entry Proactive.t
+
+module Reactive : Map.S with type key = entry
+
+type reactive_end = {(*information required by the compiler of the VM *)
+  vm_compiling :
+      (bool->Cbytecodes.comp_env->constr array ->
+       int->Cbytecodes.bytecodes->Cbytecodes.bytecodes)
+      option;
+  vm_constant_static :
+      (bool->constr array->Cbytecodes.structured_constant)
+      option;
+  vm_constant_dynamic :
+      (bool->Cbytecodes.comp_env->Cbytecodes.block array->int->
+         Cbytecodes.bytecodes->Cbytecodes.bytecodes)
+      option;
+  vm_before_match : (bool -> Cbytecodes.bytecodes -> Cbytecodes.bytecodes) option;
+  vm_decompile_const : (int -> Term.constr) option}
+
+
+
+and reactive = reactive_end Reactive.t
+
+and retroknowledge = {flags : flags; proactive : proactive; reactive : reactive}
 
 
 (** This type represent an atomic action of the retroknowledge. It

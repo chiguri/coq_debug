@@ -16,7 +16,7 @@ val is_keyword : string -> bool
 val location_function : int -> loc
 
 (** for coqdoc *)
-type location_table
+type location_table = (int, loc) Hashtbl.t
 val location_table : unit -> location_table
 val restore_location_table : location_table -> unit
 
@@ -24,12 +24,18 @@ val check_ident : string -> unit
 val is_ident : string -> bool
 val check_keyword : string -> unit
 
-type frozen_t
+module CharMap : Map.S with type key = char
+
+type ttree = {
+  node : string option;
+  branch : ttree CharMap.t }
+
+type frozen_t = ttree
 val freeze : unit -> frozen_t
 val unfreeze : frozen_t -> unit
 val init : unit -> unit
 
-type com_state
+type com_state = int option * string * bool
 val com_state: unit -> com_state
 val restore_com_state: com_state -> unit
 

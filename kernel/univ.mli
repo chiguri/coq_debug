@@ -8,10 +8,26 @@
 
 (** Universes. *)
 
-type universe_level
-type universe
+(* TODO maybe this cannot be an interface *)
+module UniverseLevel : sig
+  type t =
+    | Set
+    | Level of Names.dir_path * int
+end
 
-module UniverseLSet : Set.S with type elt = universe_level
+
+module UniverseLMap : Map.S with type key = UniverseLevel.t
+module UniverseLSet : Set.S with type elt = UniverseLevel.t
+
+type universe_level = UniverseLevel.t
+
+type universe =
+  | Atom of UniverseLevel.t
+  | Max of UniverseLevel.t list * UniverseLevel.t list
+
+
+(* original UniverseLSet type *)
+(* module UniverseLSet : Set.S with type elt = universe_level *)
 
 (** The universes hierarchy: Type 0- = Prop <= Type 0 = Set <= Type 1 <= ... 
    Typing of universes: Type 0-, Type 0 : Type 1; Type i : Type (i+1) if i>0 *)
@@ -39,7 +55,14 @@ val sup   : universe -> universe -> universe
 
 (** {6 Graphs of universes. } *)
 
-type universes
+
+type canonical_arc =
+    { univ: UniverseLevel.t; lt: UniverseLevel.t list; le: UniverseLevel.t list }
+
+type univ_entry =
+    Canonical of canonical_arc
+  | Equiv of UniverseLevel.t
+type universes = univ_entry UniverseLMap.t
 
 type check_function = universes -> universe -> universe -> bool
 val check_geq : check_function
@@ -50,8 +73,13 @@ val initial_universes : universes
 val is_initial_universes : universes -> bool
 
 (** {6 Constraints. } *)
+type constraint_type = Lt | Le | Eq
 
-type constraints
+type univ_constraint = UniverseLevel.t * constraint_type * UniverseLevel.t
+
+module Constraint : Set.S with type elt = univ_constraint
+
+type constraints = Constraint.t
 
 val empty_constraint : constraints
 val union_constraints : constraints -> constraints -> constraints
@@ -68,8 +96,6 @@ val enforce_eq : constraint_function
   The function [merge_constraints] merges a set of constraints in a given
   universes graph. It raises the exception [UniverseInconsistency] if the
   constraints are not satisfiable. *)
-
-type constraint_type = Lt | Le | Eq
 
 exception UniverseInconsistency of constraint_type * universe * universe
 

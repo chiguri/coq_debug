@@ -11,6 +11,7 @@ open Term
 open Declarations
 open Entries
 open Mod_subst
+open Environ
 
 (** {6 Safe environments } *)
 
@@ -22,7 +23,33 @@ open Mod_subst
   provide functionnality for sections and interactive modules
 *)
 
-type safe_environment
+type modvariant =
+  | NONE
+  | SIG of (* funsig params *) (mod_bound_id * module_type_body) list
+  | STRUCT of (* functor params *) (mod_bound_id * module_type_body) list
+  | LIBRARY of dir_path
+
+type module_info =
+    {modpath : module_path;
+     label : label;
+     variant : modvariant;
+     resolver : delta_resolver;
+     resolver_of_param : delta_resolver;}
+
+type library_info = dir_path * Digest.t
+
+type safe_environment =
+    { old : safe_environment;
+      env : env;
+      modinfo : module_info;
+      modlabels : Labset.t;
+      objlabels : Labset.t;
+      revstruct : structure_body;
+      univ : Univ.constraints;
+      engagement : engagement option;
+      imports : library_info list;
+      loads : (module_path * module_body) list;
+      local_retroknowledge : Retroknowledge.action list}
 
 val env_of_safe_env : safe_environment -> Environ.env
 
@@ -99,7 +126,9 @@ val delta_of_senv : safe_environment -> delta_resolver*delta_resolver
 (** Loading and saving compilation units *)
 
 (** exporting and importing modules *)
-type compiled_library
+type compiled_library =
+    dir_path * module_body * library_info list * engagement option
+
 
 val start_library : dir_path -> safe_environment
       -> module_path * safe_environment
@@ -123,7 +152,7 @@ end
 
 (** {6 Typing judgments } *)
 
-type judgment
+type judgment = unsafe_judgment
 
 val j_val : judgment -> constr
 val j_type : judgment -> constr

@@ -12,7 +12,20 @@ open Interface
 
 type xml = Xml_parser.xml
 
-type 'a call
+type 'a call =
+  | Interp of raw * verbose * string
+  | Rewind of int
+  | Goal
+  | Evars
+  | Hints
+  | Status
+  | Search of search_flags
+  | GetOptions
+  | SetOptions of (option_name * option_value) list
+  | InLoadPath of string
+  | MkCases of string
+  | Quit
+  | About
 
 (** Running a command (given as a string).
     - The 1st flag indicates whether to use "raw" mode

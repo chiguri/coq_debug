@@ -28,7 +28,7 @@
 (** {2 Types} *)
 
 (** This type represents the different kinds of parameters. *)
-type parameter_kind;;
+type parameter_kind = Configwin_types.parameter_kind;;
 
 (** This type represents the structure of the configuration window. *)
 type configuration_structure =

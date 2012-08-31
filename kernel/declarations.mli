@@ -30,7 +30,7 @@ type constant_type =
   | NonPolymorphicType of types
   | PolymorphicArity of rel_context * polymorphic_arity
 
-type constr_substituted
+type constr_substituted = constr substituted
 
 val from_val : constr -> constr_substituted
 val force : constr_substituted -> constr
@@ -39,7 +39,7 @@ val force : constr_substituted -> constr
     in a lazy form. Forcing this lazy may trigger some unmarshal of
     the necessary structure. *)
 
-type lazy_constr
+type lazy_constr = constr_substituted Lazy.t * substitution list
 
 val subst_lazy_constr : substitution -> lazy_constr -> lazy_constr
 val force_lazy_constr : lazy_constr -> constr_substituted
