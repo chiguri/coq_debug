@@ -15,8 +15,29 @@ val make_pp_emacs:unit -> unit
 val make_pp_nonemacs:unit -> unit
 
 (** Pretty-printers. *)
+type block_type =
+  | Pp_hbox of int
+  | Pp_vbox of int
+  | Pp_hvbox of int
+  | Pp_hovbox of int
+  | Pp_tbox
 
-type ppcmd
+type 'a ppcmd_token =
+  | Ppcmd_print of 'a
+  | Ppcmd_box of block_type * ('a ppcmd_token Stream.t)
+  | Ppcmd_print_break of int * int
+  | Ppcmd_set_tab
+  | Ppcmd_print_tbreak of int * int
+  | Ppcmd_white_space of int
+  | Ppcmd_force_newline
+  | Ppcmd_print_if_broken
+  | Ppcmd_open_box of block_type
+  | Ppcmd_close_box
+  | Ppcmd_close_tbox
+  | Ppcmd_comment of int
+
+
+type ppcmd = (int*string) ppcmd_token
 
 type std_ppcmds = ppcmd Stream.t
 

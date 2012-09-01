@@ -74,7 +74,7 @@ val run_command : (string -> string) -> (string -> unit) -> string ->
 
 (** {6 Time stamps.} *)
 
-type time
+type time = float * float * float
 
 val get_time : unit -> time
 val time_difference : time -> time -> float (** in seconds *)

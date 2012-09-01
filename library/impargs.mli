@@ -30,7 +30,14 @@ val is_reversible_pattern_implicit_args : unit -> bool
 val is_contextual_implicit_args : unit -> bool
 val is_maximal_implicit_args : unit -> bool
 
-type implicits_flags
+type implicits_flags = {
+  auto : bool;                     (* automatic or manual only *)
+  strict : bool;                   (* true = strict *)
+  strongly_strict : bool;          (* true = strongly strict *)
+  reversible_pattern : bool;
+  contextual : bool;               (* true = contextual *)
+  maximal : bool
+}
 val with_implicits : implicits_flags -> ('a -> 'b) -> 'a -> 'b
 
 (** {6 ... } *)
@@ -72,7 +79,7 @@ type implicit_status = (identifier * implicit_explanation *
 			  (maximal_insertion * force_inference)) option
     (** [None] = Not implicit *)
 
-type implicit_side_condition
+type implicit_side_condition = DefaultImpArgs | LessArgsThan of int
 
 type implicits_list = implicit_side_condition * implicit_status list
 
@@ -134,7 +141,9 @@ val select_impargs_size : int -> implicits_list list -> implicit_status list
 
 val select_stronger_impargs : implicits_list list -> implicit_status list
 
-type implicit_interactive_request
+type implicit_interactive_request =
+  | ImplAuto
+  | ImplManual of int
 
 type implicit_discharge_request =
   | ImplLocal

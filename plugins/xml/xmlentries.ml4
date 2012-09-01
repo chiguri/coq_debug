@@ -24,8 +24,10 @@ open Pcoq;;
 
 (* File name *)
 
+let typing_string (t : string) = t
+
 VERNAC ARGUMENT EXTEND filename
-| [ "File" string(fn) ] -> [ Some fn ]
+| [ "File" string(fn) ] -> [ Some (typing_string fn) ]
 | [ ] -> [ None ]
 END
 

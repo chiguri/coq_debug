@@ -9,7 +9,7 @@
 (*** This module implements an "untyped store", in this particular case we
         see it as an extensible record whose fields are left unspecified. ***)
 
-type t
+type t = Obj.t Util.Intmap.t
 
 module Field : sig
   type 'a field = {

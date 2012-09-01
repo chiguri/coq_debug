@@ -6,6 +6,8 @@
 (*         *       GNU Lesser General Public License Version 2.1        *)
 (************************************************************************)
 
+open Nameops
+open Names
 
 (** Lib: record of operations, backtrack, low-level sections *)
 
@@ -146,6 +148,10 @@ val close_section : unit -> unit
     otherwise the command history stack in [Backtrack] will be out-of-sync.
     Also note that [reset_initial] is now [reset_label first_command_label] *)
 
+val lib_stk : library_segment ref
+
+val comp_name : dir_path option ref
+
 (** Adds a "dummy" entry in lib_stk with a unique new label number. *)
 val mark_end_of_command : unit -> unit
 
@@ -165,7 +171,7 @@ val label_before_name : Names.identifier Util.located -> int
 
 (** {6 We can get and set the state of the operations (used in [States]). } *)
 
-type frozen
+type frozen = Names.dir_path option * library_segment
 
 val freeze : unit -> frozen
 val unfreeze : frozen -> unit

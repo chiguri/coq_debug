@@ -9,7 +9,10 @@
 (** Type of regular tree with nodes labelled by values of type 'a 
    The implementation uses de Bruijn indices, so binding capture
    is avoided by the lift operator (see example below) *)
-type 'a t
+type 'a t =
+    Param of int * int
+  | Node of 'a * 'a t array
+  | Rec of int * 'a t array
 
 (** Building trees *)
 

@@ -17,6 +17,7 @@ open Genarg
 open Pcoq
 open Tacticals
 open Constr
+open Glob_term
 
 let pr_binding prc = function
   | loc, Glob_term.NamedHyp id, c -> hov 1 (Ppconstr.pr_id id ++ str " := " ++ cut () ++ prc c)
@@ -55,13 +56,15 @@ let pr_fun_ind_using_typed prc prlc _ opt_c =
     | Some b -> spc () ++ hov 2 (str "using" ++ spc () ++ pr_with_bindings_typed prc prlc b.Evd.it)
 
 
+let typing_constr_bindings (t : constr bindings) = t
+
 ARGUMENT EXTEND fun_ind_using
   PRINTED BY pr_fun_ind_using_typed
   RAW_TYPED AS constr_with_bindings_opt
   RAW_PRINTED BY pr_fun_ind_using
   GLOB_TYPED AS constr_with_bindings_opt
   GLOB_PRINTED BY pr_fun_ind_using
-| [ "using" constr_with_bindings(c) ] -> [ Some c ]
+| [ "using" constr_with_bindings(c) ] -> [ Some (typing_constr_bindings c) ]
 | [ ] -> [ None ]
 END
 
@@ -80,8 +83,10 @@ let pr_intro_as_pat prc _ _ pat =
     | None -> mt ()
 
 
+let typing_intro_pattern_expr (t : intro_pattern_expr) = t
+
 ARGUMENT EXTEND with_names TYPED AS intro_pattern_opt PRINTED BY pr_intro_as_pat
-|   [ "as"  simple_intropattern(ipat) ] -> [ Some ipat ]
+|   [ "as"  simple_intropattern(ipat) ] -> [ Some (typing_intro_pattern_expr ipat) ]
 | []  ->[ None ]
 END
 
@@ -113,11 +118,13 @@ END
 
 let pr_constr_coma_sequence prc _ _ = Util.prlist_with_sep Util.pr_comma prc
 
+let typing_constr_list (t : constr list) = t
+
 ARGUMENT EXTEND constr_coma_sequence'
   TYPED AS constr_list
   PRINTED BY pr_constr_coma_sequence
 | [ constr(c) "," constr_coma_sequence'(l) ] -> [ c::l ]
-| [ constr(c) ] -> [ [c] ]
+| [ constr(c) ] -> [ typing_constr_list [c] ]
 END
 
 let pr_auto_using prc _prlc _prt = Pptactic.pr_auto_using prc
@@ -125,7 +132,7 @@ let pr_auto_using prc _prlc _prt = Pptactic.pr_auto_using prc
 ARGUMENT EXTEND auto_using'
   TYPED AS constr_list
   PRINTED BY pr_auto_using
-| [ "using" constr_coma_sequence'(l) ] -> [ l ]
+| [ "using" constr_coma_sequence'(l) ] -> [ typing_constr_list l ]
 | [ ] -> [ [] ]
 END
 
@@ -163,6 +170,9 @@ VERNAC COMMAND EXTEND Function
 	]
 END
 
+let typing_string (t : string) = t
+let typing_glob_sort (t : glob_sort) = t
+
 let pr_fun_scheme_arg (princ_name,fun_name,s) =
   Nameops.pr_id princ_name ++ str " :=" ++ spc() ++ str "Induction for " ++
   Libnames.pr_reference fun_name ++ spc() ++ str "Sort " ++
@@ -170,7 +180,7 @@ let pr_fun_scheme_arg (princ_name,fun_name,s) =
 
 VERNAC ARGUMENT EXTEND fun_scheme_arg
 PRINTED BY pr_fun_scheme_arg
-| [ ident(princ_name) ":=" "Induction" "for" reference(fun_name) "Sort" sort(s) ] -> [ (princ_name,fun_name,s) ]
+| [ ident(princ_name) ":=" "Induction" "for" reference(fun_name) "Sort" sort(s) ] -> [ (typing_string princ_name,typing_string fun_name,typing_glob_sort s) ]
 END
 
 

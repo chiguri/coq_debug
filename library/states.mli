@@ -16,7 +16,8 @@
 val intern_state : string -> unit
 val extern_state : string -> unit
 
-type state
+
+type state = Lib.frozen * Summary.frozen
 val freeze : unit -> state
 val unfreeze : state -> unit
 

@@ -47,7 +47,15 @@ type pri_auto_tactic = clausenv gen_auto_tactic
 
 type stored_data = int * clausenv gen_auto_tactic
 
+(*
+module Bounded_net : Btermdn.S with type ? = stored_data
+*)
+
 type search_entry
+(*
+(* I'm not sure what Bounded_net.t is nor what a signature of Bounded_net is *)
+type search_entry = stored_data list * stored_data list * Bounded_net.t
+*)
 
 (** The head may not be bound. *)
 

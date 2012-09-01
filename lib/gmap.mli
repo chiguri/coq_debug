@@ -9,7 +9,10 @@
 (** Maps using the generic comparison function of ocaml. Same interface as
    the module [Map] from the ocaml standard library. *)
 
-type ('a,'b) t
+type ('a,'b) t =
+    Empty
+  | Node of ('a,'b) t * 'a * 'b * ('a,'b) t * int
+
 
 val empty : ('a,'b) t
 val is_empty : ('a,'b) t -> bool

@@ -89,7 +89,7 @@ val ident_subst_function : substitution * 'a -> 'a
    will hand back two functions, the "injection" and "projection"
    functions for dynamically typed library-objects. *)
 
-type obj
+type obj = Dyn.t (* persistent dynamic objects *)
 
 val declare_object_full :
   'a object_declaration -> ('a -> obj) * (obj -> 'a)

@@ -21,10 +21,12 @@ open Extract_env
 
 let pr_mlname _ _ _ s = spc () ++ qs s
 
+let typing_string (s : string) = s
+
 ARGUMENT EXTEND mlname
   TYPED AS string
   PRINTED BY pr_mlname
-| [ preident(id) ] -> [ id ]
+| [ preident(id) ] -> [ typing_string id ]
 | [ string(s) ] -> [ s ]
 END
 

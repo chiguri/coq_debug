@@ -74,7 +74,15 @@ Remarks:
 
 i*)
 
-type profile_key
+type profile_key = {
+  mutable owntime : int;
+  mutable tottime : int;
+  mutable ownalloc : float;
+  mutable totalloc : float;
+  mutable owncount : int;
+  mutable intcount : int;
+  mutable immcount : int;
+}
 
 val set_recording : string -> unit
 

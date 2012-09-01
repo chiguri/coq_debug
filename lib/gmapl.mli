@@ -6,9 +6,11 @@
 (*         *       GNU Lesser General Public License Version 2.1        *)
 (************************************************************************)
 
+open Util
+
 (** Maps from ['a] to lists of ['b]. *)
 
-type ('a,'b) t
+type ('a,'b) t = ('a,'b list) Gmap.t
 
 val empty : ('a,'b) t
 val mem :  'a -> ('a,'b) t -> bool

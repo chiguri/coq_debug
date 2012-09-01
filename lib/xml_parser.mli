@@ -32,7 +32,10 @@ type xml =
         | PCData of string
 
 (** Abstract type for an Xml parser. *)
-type t
+type t = {
+	mutable check_eof : bool;
+	mutable concat_pcdata : bool;
+}
 
 (** {6:exc Xml Exceptions} *)
 
@@ -46,7 +49,12 @@ type t
         }
  *)
 
-type error_pos
+type error_pos = {
+        eline : int;
+        eline_start : int;
+        emin : int;
+        emax : int;
+}
 
 type error_msg =
         | UnterminatedComment

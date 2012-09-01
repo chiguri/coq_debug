@@ -1386,6 +1386,8 @@ let glob_glob_constr_with_bindings ist l = Tacinterp.intern_constr_with_bindings
 let subst_glob_constr_with_bindings s c = subst_glob_with_bindings s c
 
 
+let typing_glob_constr_with_bindings (t : glob_constr_with_bindings) = t
+
 ARGUMENT EXTEND glob_constr_with_bindings 
     PRINTED BY pr_glob_constr_with_bindings_sign
 
@@ -1399,7 +1401,7 @@ ARGUMENT EXTEND glob_constr_with_bindings
     GLOB_TYPED AS glob_constr_with_bindings
     GLOB_PRINTED BY pr_glob_constr_with_bindings
    
-   [ constr_with_bindings(bl) ] -> [ bl ]
+   [ constr_with_bindings(bl) ] -> [ typing_glob_constr_with_bindings bl ]
 END
 
 type ('constr,'redexpr) strategy_ast = 
@@ -1475,6 +1477,8 @@ let pr_strategy _ _ _ (s : strategy) = Pp.str "<strategy>"
 let pr_raw_strategy _ _ _ (s : raw_strategy) = Pp.str "<strategy>"
 let pr_glob_strategy _ _ _ (s : glob_strategy) = Pp.str "<strategy>"
 
+let typing_glob_strategy (t : glob_strategy) = t
+
 ARGUMENT EXTEND rewstrategy
     PRINTED BY pr_strategy
 
@@ -1488,7 +1492,7 @@ ARGUMENT EXTEND rewstrategy
     GLOB_TYPED AS glob_strategy
     GLOB_PRINTED BY pr_glob_strategy
 
-    [ glob(c) ] -> [ StratConstr (c, true) ]
+    [ glob(c) ] -> [ typing_glob_strategy (StratConstr (c, true)) ]
   | [ "<-" constr(c) ] -> [ StratConstr (c, false) ]
   | [ "subterms" rewstrategy(h) ] -> [ StratUnary ("all_subterms", h) ]
   | [ "subterm" rewstrategy(h) ] -> [ StratUnary ("one_subterm", h) ]

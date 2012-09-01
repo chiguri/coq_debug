@@ -8,7 +8,7 @@
 
 (** Arbitrary large integer numbers *)
 
-type bigint
+type bigint = Obj.t
 
 val of_string : string -> bigint
 val to_string : bigint -> string

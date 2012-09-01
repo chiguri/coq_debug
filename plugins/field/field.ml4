@@ -94,13 +94,16 @@ let add_field a aplus amult aone azero aopp aeq ainv aminus_o adiv_o rth
 open Extend
 open Pcoq
 open Genarg
+open Topconstr
+
+let typing_constr_expr (t : constr_expr) = t
 
 VERNAC ARGUMENT EXTEND divarg
-| [ "div" ":=" constr(adiv) ] -> [ adiv ]
+| [ "div" ":=" constr(adiv) ] -> [ typing_constr_expr adiv ]
 END
 
 VERNAC ARGUMENT EXTEND minusarg
-| [ "minus" ":=" constr(aminus) ] -> [ aminus ]
+| [ "minus" ":=" constr(aminus) ] -> [ typing_constr_expr aminus ]
 END
 
 (*
@@ -126,11 +129,14 @@ let () =
     (globwit_minus_div_arg,pp_minus_div_arg)
     (wit_minus_div_arg,pp_minus_div_arg)
 *)
+
+let typing_constr (t : constr) = t
+
 ARGUMENT EXTEND minus_div_arg
   TYPED AS constr_opt * constr_opt
   PRINTED BY pp_minus_div_arg
-| [ "with" minusarg(m) divarg_opt(d) ] -> [ Some m, d ]
-| [ "with" divarg(d) minusarg_opt(m) ] -> [ m, Some d ]
+| [ "with" minusarg(m) divarg_opt(d) ] -> [ Some (typing_constr m), d ]
+| [ "with" divarg(d) minusarg_opt(m) ] -> [ m, Some (typing_constr d) ]
 | [ ] -> [ None, None ]
 END
 

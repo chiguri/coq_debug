@@ -101,7 +101,9 @@ module Dirset : Set.S with type elt = dir_path
 module Dirmap : Map.S with type key = dir_path
 
 (** {6 Full paths are {e absolute} paths of declarations } *)
-type full_path
+type full_path = {
+  dirpath : dir_path ;
+  basename : identifier }
 
 (** Constructors of [full_path] *)
 val make_path : dir_path -> identifier -> full_path
@@ -134,7 +136,7 @@ val decode_con : constant -> dir_path * identifier
     qualifications of absolute names, including single identifiers.
     The [qualid] are used to access the name table. *)
 
-type qualid
+type qualid = full_path
 
 val make_qualid : dir_path -> identifier -> qualid
 val repr_qualid : qualid -> dir_path * identifier

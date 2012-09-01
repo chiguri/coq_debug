@@ -760,8 +760,10 @@ let pr_depth _prc _prlc _prt = function
     Some i -> Util.pr_int i
   | None -> Pp.mt()
 
+let typing_int_option (t : int option) = t
+
 ARGUMENT EXTEND depth TYPED AS int option PRINTED BY pr_depth
-| [ int_or_var_opt(v) ] -> [ match v with Some (ArgArg i) -> Some i | _ -> None ]
+| [ int_or_var_opt(v) ] -> [ match v with Some (ArgArg i) -> typing_int_option (Some i) | _ -> None ]
 END
 
 (* true = All transparent, false = Opaque if possible *)

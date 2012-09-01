@@ -110,13 +110,15 @@ let pr_firstorder_using_raw _ _ _ = prlist_with_sep pr_comma pr_reference
 let pr_firstorder_using_glob _ _ _ = prlist_with_sep pr_comma (pr_or_var (pr_located pr_global))
 let pr_firstorder_using_typed _ _ _ = prlist_with_sep pr_comma pr_global
 
+let typing_reference_list (t : reference list) = t
+
 ARGUMENT EXTEND firstorder_using
   PRINTED BY pr_firstorder_using_typed
   RAW_TYPED AS reference_list
   RAW_PRINTED BY pr_firstorder_using_raw
   GLOB_TYPED AS reference_list
   GLOB_PRINTED BY pr_firstorder_using_glob
-| [ "using" reference(a) ] -> [ [a] ]
+| [ "using" reference(a) ] -> [ typing_reference_list [a] ]
 | [ "using" reference(a) "," ne_reference_list_sep(l,",") ] -> [ a::l ]
 | [ "using" reference(a) reference(b) reference_list(l) ] -> [
     Flags.if_verbose

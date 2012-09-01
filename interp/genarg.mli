@@ -120,7 +120,36 @@ type rlevel
 type glevel
 type tlevel
 
-type ('a,'co) abstract_argument_type
+
+
+type argument_type =
+  (** Basic types *)
+  | BoolArgType
+  | IntArgType
+  | IntOrVarArgType
+  | StringArgType
+  | PreIdentArgType
+  | IntroPatternArgType
+  | IdentArgType of bool
+  | VarArgType
+  | RefArgType
+  (** Specific types *)
+  | SortArgType
+  | ConstrArgType
+  | ConstrMayEvalArgType
+  | QuantHypArgType
+  | OpenConstrArgType of bool
+  | ConstrWithBindingsArgType
+  | BindingsArgType
+  | RedExprArgType
+  | List0ArgType of argument_type
+  | List1ArgType of argument_type
+  | OptArgType of argument_type
+  | PairArgType of argument_type * argument_type
+  | ExtraArgType of string
+
+
+type ('a,'b) abstract_argument_type = argument_type
 
 val rawwit_bool : (bool,rlevel) abstract_argument_type
 val globwit_bool : (bool,glevel) abstract_argument_type
@@ -222,7 +251,7 @@ val wit_pair :
       ('a * 'b,'co) abstract_argument_type
 
 (** ['a generic_argument] = (Sigma t:type. t[[constr/'a]]) *)
-type 'a generic_argument
+type 'a generic_argument = argument_type * Obj.t
 
 val fold_list0 :
  ('a generic_argument -> 'c -> 'c) -> 'a generic_argument -> 'c -> 'c
@@ -264,32 +293,6 @@ val create_arg : 'rawa option ->
 
 val exists_argtype : string -> bool
 
-type argument_type =
-  (** Basic types *)
-  | BoolArgType
-  | IntArgType
-  | IntOrVarArgType
-  | StringArgType
-  | PreIdentArgType
-  | IntroPatternArgType
-  | IdentArgType of bool
-  | VarArgType
-  | RefArgType
-  (** Specific types *)
-  | SortArgType
-  | ConstrArgType
-  | ConstrMayEvalArgType
-  | QuantHypArgType
-  | OpenConstrArgType of bool
-  | ConstrWithBindingsArgType
-  | BindingsArgType
-  | RedExprArgType
-  | List0ArgType of argument_type
-  | List1ArgType of argument_type
-  | OptArgType of argument_type
-  | PairArgType of argument_type * argument_type
-  | ExtraArgType of string
-
 val genarg_tag : 'a generic_argument -> argument_type
 
 val unquote : ('a,'co) abstract_argument_type -> argument_type
@@ -308,7 +311,7 @@ val out_gen :
    [in_generic] is not typable; we replace the second argument by an absurd
    type (with no introduction rule)
 *)
-type an_arg_of_this_type
+type an_arg_of_this_type = Obj.t
 
 val in_generic :
   argument_type -> an_arg_of_this_type -> 'co generic_argument

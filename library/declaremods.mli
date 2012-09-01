@@ -105,7 +105,8 @@ val module_objects : module_path -> library_segment
 
 type library_name = dir_path
 
-type library_objects
+type library_objects =
+    module_path * lib_objects * lib_objects
 
 val register_library :
   library_name ->
