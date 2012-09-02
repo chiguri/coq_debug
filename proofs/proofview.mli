@@ -21,8 +21,13 @@
    to be able to return information about the proofview. *)
 
 open Term
+open Compat
 
-type proofview 
+type proofview = {
+     initial : (Term.constr * Term.types) list;
+     solution : Evd.evar_map;
+     comb : Goal.goal list
+     }
 
 
 (* Returns a stylised view of a proofview for use by, for instance,
@@ -54,7 +59,7 @@ val return : proofview -> (constr*types) list
 exception IndexOutOfRange
 
 (* Type of the object which allow to unfocus a view.*)
-type focus_context
+type focus_context = Goal.goal list * Goal.goal list
 
 (* Returns a stylised view of a focus_context for use by, for
    instance, ide-s. *)
@@ -112,7 +117,17 @@ val unfocus : focus_context -> proofview -> proofview
 *)
 
 
-type +'a tactic 
+type proof_step = { goals : Goal.goal list ; defs : Evd.evar_map }
+type +'a result = { proof_step : proof_step ;
+		                content : 'a }
+
+type +'a nb_tactic  = proof_step -> 'a result
+
+type 'r fk = exn -> 'r
+type (-'a,'r) sk = 'a -> 'r fk -> 'r
+type +'a tactic0 = { go : 'r. ('a, 'r nb_tactic) sk -> 'r nb_tactic fk -> 'r nb_tactic }
+
+type +'a tactic = Environ.env -> 'a tactic0
 
 (* Applies a tactic to the current proofview. *)
 val apply : Environ.env -> 'a tactic -> proofview -> proofview
