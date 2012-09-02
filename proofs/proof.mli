@@ -32,7 +32,47 @@
 open Term
 
 (* Type of a proof. *)
-type proof
+type _focus_kind = int
+type 'a focus_kind = _focus_kind
+type focus_info = Obj.t
+type unfocusable =
+  | Cannot of exn
+  | Loose
+  | Strict
+type _focus_condition = 
+    (_focus_kind -> Proofview.proofview -> unfocusable) *
+    (_focus_kind -> bool)
+type 'a focus_condition = _focus_condition
+
+type proof_state = {
+  (* Current focused proofview *)
+  proofview: Proofview.proofview;
+  (* History of the focusings, provides information on how
+     to unfocus the proof and the extra information stored while focusing.
+     The list is empty when the proof is fully unfocused. *)
+  focus_stack: (_focus_condition*focus_info*Proofview.focus_context) list;
+  (* Extra information which can be freely used to create new behaviours. *)
+  intel: Store.t
+}
+
+type proof_info = {
+  mutable endline_tactic : unit Proofview.tactic ;
+  mutable section_vars : Sign.section_context option;
+  initial_conclusions : Term.types list
+}
+
+type undo_action = 
+  | State of proof_state
+  | Effect of (unit -> unit)
+
+type proof = { (* current proof_state *)
+               mutable state : proof_state;
+               (* The undo stack *)
+               mutable undo_stack : undo_action list;
+	       (* secondary undo stacks used for transactions *)
+	       mutable transactions : undo_action list list;
+	       info : proof_info
+             }
 
 (* Returns a stylised view of a proof for use by, for instance,
    ide-s. *)
@@ -85,14 +125,12 @@ val add_undo : (unit -> unit) -> proof -> unit
     stored at the focusing point. An example use is the "induction" tactic
     of the declarative mode where sub-tactics must be aware of the current
     induction argument. *)
-type 'a focus_kind
 val new_focus_kind : unit -> 'a focus_kind
 
 (* To be authorized to unfocus one must meet the condition prescribed by
     the action which focused.
     Conditions always carry a focus kind, and inherit their type parameter
     from it.*)
-type 'a focus_condition 
 (* [no_cond] only checks that the unfocusing command uses the right
     [focus_kind].
    If [loose_end] (default [false]) is [true], then if the [focus_kind]
