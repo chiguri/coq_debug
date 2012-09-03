@@ -8,7 +8,12 @@
 
 (* Type of dictionaries *)
 
-type ttree
+module CharMap : Map.S with type key = char
+
+type ttree = {
+  node : string option;
+  branch : ttree CharMap.t }
+
 
 val empty_ttree : ttree
 

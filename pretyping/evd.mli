@@ -132,8 +132,24 @@ val evar_filter : evar_info -> bool list
 val evar_unfiltered_env :  evar_info -> env
 val evar_env :  evar_info -> env
 
+
+module ExistentialMap : Map.S with type key = existential_key
+module ExistentialSet : Set.S with type elt = existential_key
+module EvarInfoMap : sig
+  type t = evar_info ExistentialMap.t * evar_info ExistentialMap.t
+end
+module EvarMap : sig
+  type t = EvarInfoMap.t * (Univ.UniverseLSet.t * Univ.universes)
+end
+
 (*** Unification state ***)
-type evar_map
+type conv_pb = Reduction.conv_pb
+type evar_constraint = conv_pb * Environ.env * constr * constr
+type evar_map =
+    { evars : EvarMap.t;
+      conv_pbs : evar_constraint list;
+      last_mods : ExistentialSet.t;
+      metas : clbinding Metamap.t }
 
 (** Unification state and existential variables *)
 
@@ -206,12 +222,8 @@ val evar_source : existential_key -> evar_map -> hole_kind located
 val evar_merge : evar_map -> evar_map -> evar_map
 
 (** Unification constraints *)
-type conv_pb = Reduction.conv_pb
-type evar_constraint = conv_pb * env * constr * constr
 val add_conv_pb :  evar_constraint -> evar_map -> evar_map
 
-module ExistentialMap : Map.S with type key = existential_key
-module ExistentialSet : Set.S with type elt = existential_key
 val extract_changed_conv_pbs : evar_map ->
       (ExistentialSet.t -> evar_constraint -> bool) ->
       evar_map * evar_constraint list

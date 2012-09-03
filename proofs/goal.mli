@@ -8,7 +8,10 @@
 
 (* This module implements the abstract interface to goals *)
 
-type goal
+type goal = {
+  content : Evd.evar;
+  tags : string list
+}
 
 (* spiwack: this primitive is not extremely brilliant. It may be a good
     idea to define goals and proof views in the same file to avoid this
@@ -36,10 +39,11 @@ val advance : Evd.evar_map -> goal -> goal option
 
 
 (* Goal tactics are [subgoal sensitive]-s *)
-type subgoals = private { subgoals: goal list }
+type subgoals = { subgoals: goal list }
 
 (* Goal sensitive values *)
-type +'a sensitive
+type 'a sensitive = 
+    Environ.env -> Evd.evar_map ref -> goal -> Evd.evar_info -> 'a
 
 (* evaluates a goal sensitive value in a given goal (knowing the current evar_map). *)
 val eval : 'a sensitive -> Environ.env -> Evd.evar_map -> goal -> 'a * Evd.evar_map
@@ -57,8 +61,12 @@ val return : 'a -> 'a sensitive
     As of now, though, it seems at least quite useful to build tactics. *)
 val interp_constr : Topconstr.constr_expr -> Term.constr sensitive
 
+
 (* Type of constr with holes used by refine. *)
-type refinable
+type refinable = {
+  me: Term.constr;
+  my_evars: Evd.evar list
+}
 
 module Refinable : sig
   type t = refinable 

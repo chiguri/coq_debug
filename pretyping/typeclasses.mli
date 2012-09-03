@@ -41,7 +41,15 @@ type typeclass = {
   cl_projs : (name * (direction * int option) option * constant option) list;
 }
 
-type instance
+type instance = {
+  is_class: global_reference;
+  is_pri: int option;
+  (* Sections where the instance should be redeclared,
+     -1 for discard, 0 for none, mutable to avoid redeclarations
+     when multiple rebuild_object happen. *)
+  is_global: int;
+  is_impl: global_reference;
+}
 
 val instances : global_reference -> instance list
 val typeclasses : unit -> typeclass list

@@ -32,13 +32,18 @@ type cl_info_typ = {
 type coe_typ = Libnames.global_reference
 
 (** This is the type of infos for declared coercions *)
-type coe_info_typ
+type coe_info_typ = {
+  coe_value : constr;
+  coe_type : types;
+  coe_strength : locality;
+  coe_is_identity : bool;
+  coe_param : int }
 
 (** [cl_index] is the type of class keys *)
-type cl_index
+type cl_index = int
 
 (** [coe_index] is the type of coercion keys *)
-type coe_index
+type coe_index = coe_info_typ
 
 (** This is the type of paths from a class to another *)
 type inheritance_path = coe_index list

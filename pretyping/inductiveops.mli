@@ -26,7 +26,7 @@ val type_of_constructors : env -> inductive -> types array
 val arities_of_constructors : env -> inductive -> types array
 
 (** An inductive type with its parameters *)
-type inductive_family
+type inductive_family = inductive * constr list
 val make_ind_family : inductive * constr list -> inductive_family
 val dest_ind_family : inductive_family -> inductive * constr list
 val map_ind_family : (constr -> constr) -> inductive_family -> inductive_family

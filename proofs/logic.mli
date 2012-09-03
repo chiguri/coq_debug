@@ -32,7 +32,9 @@ val with_check    : tactic -> tactic
 
 val prim_refiner : prim_rule -> evar_map -> goal -> goal list * evar_map
 
-type proof_variable
+type variable_proof_status = ProofVar | SectionVar of identifier
+
+type proof_variable = name * variable_proof_status
 
 
 val proof_variable_index : identifier -> proof_variable list -> int

@@ -13,15 +13,6 @@ open Closure
 open Esubst
 
 (***********************************************************************
-  s Call-by-value reduction *)
-
-(** Entry point for cbv normalization of a constr *)
-type cbv_infos
-
-val create_cbv_infos : RedFlags.reds -> env -> Evd.evar_map -> cbv_infos
-val cbv_norm         : cbv_infos -> constr -> constr
-
-(***********************************************************************
   i This is for cbv debug *)
 type cbv_value =
   | VAL of int * constr
@@ -41,6 +32,16 @@ val shift_value : int -> cbv_value -> cbv_value
 
 val stack_app : cbv_value array -> cbv_stack -> cbv_stack
 val strip_appl : cbv_value -> cbv_stack -> cbv_value * cbv_stack
+
+(** Entry point for cbv normalization of a constr *)
+(***********************************************************************
+  s Call-by-value reduction *)
+
+type cbv_infos = cbv_value infos
+
+val create_cbv_infos : RedFlags.reds -> env -> Evd.evar_map -> cbv_infos
+val cbv_norm         : cbv_infos -> constr -> constr
+
 
 (** recursive functions... *)
 val cbv_stack_term : cbv_infos ->
